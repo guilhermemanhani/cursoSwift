@@ -8,6 +8,7 @@
 
 import UIKit
 import CoreData
+import SafariServices
 
 class HomeTableViewController: UITableViewController, UISearchBarDelegate, NSFetchedResultsControllerDelegate {
     
@@ -44,10 +45,15 @@ class HomeTableViewController: UITableViewController, UISearchBarDelegate, NSFet
         self.navigationItem.searchController = searchController
     }
     
-    func recuperaAluno() {
+    func recuperaAluno(filtro: String = "") {
         let pesquisaAluno:NSFetchRequest<Aluno> = Aluno.fetchRequest()
         let ordenaPorNome = NSSortDescriptor(key: "nome", ascending: true)
         pesquisaAluno.sortDescriptors = [ordenaPorNome]
+        
+        if verificaFiltro(filtro){
+            pesquisaAluno.predicate = filtraAluno(filtro)
+        }
+        
         
         gerenciadorDeResultados = NSFetchedResultsController(fetchRequest: pesquisaAluno, managedObjectContext: contexto, sectionNameKeyPath: nil, cacheName: nil)
         gerenciadorDeResultados?.delegate = self
@@ -59,28 +65,39 @@ class HomeTableViewController: UITableViewController, UISearchBarDelegate, NSFet
         }
     }
     
+    func filtraAluno(_ filtro:String) -> NSPredicate {
+        return NSPredicate(format:"nome CONTAINS %@", filtro)
+    }
+    
+    func verificaFiltro(_ filtro: String) -> Bool {
+        if filtro.isEmpty{
+            return false
+        }
+        
+        return true
+    }
+    
     @objc func abrirActionSheet(_ longPress:UILongPressGestureRecognizer) {
         if longPress.state == .began {
             guard let alunoSelecionado = gerenciadorDeResultados?.fetchedObjects?[(longPress.view?.tag)!] else { return }
-            let menu = MenuOpcoesAlunos().configurarMenuDeOpcoesDoAluno(completion: { (opcao)
-                in switch opcao{
+            let menu = MenuOpcoesAlunos().configuraMenuDeOpcoesDoAluno(completion: { (opcao) in
+                switch opcao {
                 case .sms:
-                    if let componenteMensagem = self.mensagem.configuraSMS(alunoSelecionado) { componenteMensagem.messageComposeDelegate = self.mensagem
-                    self.present(componenteMensagem, animated: true,  completion: nil)
+                    if let componenteMensagem = self.mensagem.configuraSMS(alunoSelecionado) {
+                        componenteMensagem.messageComposeDelegate = self.mensagem
+                        self.present(componenteMensagem, animated: true, completion: nil)
                     }
                     break
                 case .ligacao:
                     guard let numeroDoAluno = alunoSelecionado.telefone else { return }
-                    if let url = URL(string: "tel://\(numeroDoAluno)"),
-                        UIApplication.shared.canOpenURL(url) {
+                    if let url = URL(string: "tel://\(numeroDoAluno)"), UIApplication.shared.canOpenURL(url) {
                         UIApplication.shared.open(url, options: [:], completionHandler: nil)
                     }
                     break
                 case .waze:
-                    if UIApplication.shared.canOpenURL(URL(string: "waze://")!){
+                    if UIApplication.shared.canOpenURL(URL(string: "waze://")!) {
                         guard let enderecoDoAluno = alunoSelecionado.endereco else { return }
-                        Localizacao().converteEnderecoEmCoordenadas(endereco: enderecoDoAluno, local: {
-                            (localizacaoEncontrada) in
+                        Localizacao().converteEnderecoEmCoordenadas(endereco: enderecoDoAluno, local: { (localizacaoEncontrada) in
                             let latitude = String(describing: localizacaoEncontrada.location!.coordinate.latitude)
                             let longitude = String(describing: localizacaoEncontrada.location!.coordinate.longitude)
                             let url:String = "waze://?ll=\(latitude),\(longitude)&navigate=yes"
@@ -90,13 +107,31 @@ class HomeTableViewController: UITableViewController, UISearchBarDelegate, NSFet
                     break
                 case .mapa:
                     let mapa = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "mapa") as! MapaViewController
+                    mapa.aluno = alunoSelecionado
+                    
                     self.navigationController?.pushViewController(mapa, animated: true)
+                    break
+                case .abrirPaginaWeb:
+                    if let urlDoAluno = alunoSelecionado.site {
+                        
+                        var urlFormatada = urlDoAluno
+                        
+                        if !urlFormatada.hasPrefix("http://"){
+                            urlFormatada = String(format: "http://%@", urlFormatada)
+                        }
+                        
+                        guard let url = URL(string: urlFormatada) else { return }
+                        let safariViewController = SFSafariViewController(url: url)
+                        self.present(safariViewController, animated: true, completion: nil)
+                    }
+                    
                     break
                 }
             })
             self.present(menu, animated: true, completion: nil)
         }
     }
+
     // MARK: - Table view data source
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -110,6 +145,7 @@ class HomeTableViewController: UITableViewController, UISearchBarDelegate, NSFet
         guard let aluno = gerenciadorDeResultados?.fetchedObjects![indexPath.row] else { return celula }
         celula.configuraCelula(aluno)
         celula.addGestureRecognizer(longPress)
+        
         return celula
     }
     
@@ -119,14 +155,20 @@ class HomeTableViewController: UITableViewController, UISearchBarDelegate, NSFet
 
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
-            guard let alunoSelecionado = gerenciadorDeResultados?.fetchedObjects![indexPath.row] else { return }
-            contexto.delete(alunoSelecionado)
-            
-            do {
-                try contexto.save()
-            } catch {
-                print(error.localizedDescription)
-            }
+            AutenticacaoLocal().autorizaUsuario(completion: { (autenticado) in
+                if autenticado {
+                    DispatchQueue.main.async {
+                        guard let alunoSelecionado = self.gerenciadorDeResultados?.fetchedObjects![indexPath.row] else { return }
+                        self.contexto.delete(alunoSelecionado)
+                        
+                        do {
+                            try self.contexto.save()
+                        } catch {
+                            print(error.localizedDescription)
+                        }
+                    }
+                }
+            })
             
         } else if editingStyle == .insert {
             // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
@@ -152,7 +194,24 @@ class HomeTableViewController: UITableViewController, UISearchBarDelegate, NSFet
     }
     
     @IBAction func buttonCalculaMedia(_ sender: UIBarButtonItem) {
-        CalculaMediaAPI().calculaMediaGeralDosAlunos()
+        guard let listaDeAlunos = gerenciadorDeResultados?.fetchedObjects else { return }
+        CalculaMediaAPI().calculaMediaGeralDosAlunos(alunos: listaDeAlunos, sucesso: { (dicionario) in
+            if let alerta = Notificacoes().exibeNotificacaoDeMediaDosAlunos(dicionarioDeMedia: dicionario) {
+                self.present(alerta, animated: true, completion: nil)
+            }
+        }) { (error) in
+            print(error.localizedDescription)
+        }
     }
-
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        guard let nomeDoAluno = searchBar.text else { return }
+        recuperaAluno(filtro: nomeDoAluno)
+        tableView.reloadData()
+    }
+    
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        recuperaAluno()
+        tableView.reloadData()
+    }
 }

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="15702" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="MAa-UF-TLD">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="15705" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="MAa-UF-TLD">
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15704"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15706"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -24,10 +24,17 @@
                                     <rect key="frame" x="0.0" y="0.0" width="375" height="85"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
-                                        <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="I1a-iL-YQH">
+                                        <view clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="lpU-v9-xbY">
                                             <rect key="frame" x="16" y="12" width="60" height="60"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                        </imageView>
+                                            <subviews>
+                                                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="I1a-iL-YQH">
+                                                    <rect key="frame" x="0.0" y="0.0" width="60" height="60"/>
+                                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                </imageView>
+                                            </subviews>
+                                            <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                        </view>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="oKL-i4-VS5">
                                             <rect key="frame" x="90" y="32" width="269" height="21"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
@@ -40,6 +47,7 @@
                                 <connections>
                                     <outlet property="imageAluno" destination="I1a-iL-YQH" id="dM3-yt-b69"/>
                                     <outlet property="labelNomeDoAluno" destination="oKL-i4-VS5" id="GFr-bb-rep"/>
+                                    <outlet property="viewImagem" destination="lpU-v9-xbY" id="dPY-qF-wpk"/>
                                     <segue destination="ZY7-NM-Hup" kind="show" identifier="editar" id="44x-cw-dNc"/>
                                 </connections>
                             </tableViewCell>
@@ -54,7 +62,7 @@
                         <leftBarButtonItems>
                             <barButtonItem systemItem="bookmarks" id="dzi-1s-s3a">
                                 <connections>
-                                    <action selector="buttonCalculaMedia:" destination="Qhi-kM-lyB" id="Bfa-M6-D9w"/>
+                                    <action selector="buttonCalculaMedia:" destination="Qhi-kM-lyB" id="Clb-FF-lQn"/>
                                 </connections>
                             </barButtonItem>
                             <barButtonItem systemItem="search" id="eTQ-eO-deP"/>
@@ -73,7 +81,7 @@
         <!--Aluno View Controller-->
         <scene sceneID="eVt-59-5bJ">
             <objects>
-                <viewController id="ZY7-NM-Hup" customClass="AlunoViewController" customModule="Agenda" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="cadastrar" id="ZY7-NM-Hup" customClass="AlunoViewController" customModule="Agenda" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="daU-O4-U0H">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -253,38 +261,33 @@
             <point key="canvasLocation" x="1189.5999999999999" y="115.59220389805098"/>
         </scene>
         <!--Mapa View Controller-->
-        <scene sceneID="j1P-eC-PDF">
+        <scene sceneID="Sln-ek-kiP">
             <objects>
-                <viewController storyboardIdentifier="mapa" id="fq3-Jc-OSA" customClass="MapaViewController" customModule="Agenda" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" contentMode="scaleToFill" id="DFO-hk-Vl2">
+                <viewController storyboardIdentifier="mapa" id="UeM-El-bVF" customClass="MapaViewController" customModule="Agenda" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="SVW-RB-cc3">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="emi-1p-Z8h">
+                            <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="sGZ-ZA-ACC">
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="128" id="4e4-jC-t8r"/>
-                                    <constraint firstAttribute="width" constant="240" id="oY5-L3-yIZ"/>
-                                </constraints>
                             </mapView>
                         </subviews>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="emi-1p-Z8h" firstAttribute="top" secondItem="1En-px-kl2" secondAttribute="top" id="3VY-E3-EJv"/>
-                            <constraint firstItem="1En-px-kl2" firstAttribute="trailing" secondItem="emi-1p-Z8h" secondAttribute="trailing" id="7Xk-bQ-pKk"/>
-                            <constraint firstItem="1En-px-kl2" firstAttribute="bottom" secondItem="emi-1p-Z8h" secondAttribute="bottom" id="L2a-fO-aFk"/>
-                            <constraint firstItem="emi-1p-Z8h" firstAttribute="leading" secondItem="1En-px-kl2" secondAttribute="leading" id="NAe-za-sal"/>
-                            <constraint firstItem="emi-1p-Z8h" firstAttribute="top" secondItem="1En-px-kl2" secondAttribute="top" id="ngb-Nn-MXu"/>
+                            <constraint firstItem="sGZ-ZA-ACC" firstAttribute="bottom" secondItem="PRE-c4-XeH" secondAttribute="bottom" id="0SK-cC-k6w"/>
+                            <constraint firstItem="sGZ-ZA-ACC" firstAttribute="top" secondItem="PRE-c4-XeH" secondAttribute="top" id="Cir-xZ-LGa"/>
+                            <constraint firstItem="sGZ-ZA-ACC" firstAttribute="leading" secondItem="PRE-c4-XeH" secondAttribute="leading" id="F7b-u4-nYN"/>
+                            <constraint firstItem="sGZ-ZA-ACC" firstAttribute="trailing" secondItem="PRE-c4-XeH" secondAttribute="trailing" id="gQU-Yz-Fkg"/>
                         </constraints>
-                        <viewLayoutGuide key="safeArea" id="1En-px-kl2"/>
+                        <viewLayoutGuide key="safeArea" id="PRE-c4-XeH"/>
                     </view>
                     <connections>
-                        <outlet property="mapa" destination="emi-1p-Z8h" id="51z-84-EGD"/>
+                        <outlet property="mapa" destination="sGZ-ZA-ACC" id="18I-5w-YM9"/>
                     </connections>
                 </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="zqh-JG-ZPO" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Aqo-Fl-Fe3" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1852" y="115.59220389805098"/>
+            <point key="canvasLocation" x="1901.5999999999999" y="115.59220389805098"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="yXs-rW-FGy">
